@@ -7,7 +7,6 @@ Pillow
 pytesseract
 newspaper3k
 python-whois
-google-generativeai
 transformers
 torch
 spacy

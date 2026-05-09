@@ -9,16 +9,8 @@ Improvements:
   - Expanded heuristic keyword lists for better fallback coverage
   - Added credibility source label for heuristic results
 """
-import os
 import httpx
 import asyncio
-from dotenv import load_dotenv
-
-load_dotenv()
-_raw_key = os.getenv("GOOGLE_FACT_CHECK_API_KEY", "").strip()
-# Strip placeholder so it isn't accidentally used
-FACT_CHECK_API_KEY = "" if _raw_key in ("your_google_fact_check_api_key_here", "") else _raw_key
-FACT_CHECK_URL = "https://factchecktools.googleapis.com/v1alpha1/claims:search"
 
 VERDICT_NORMALIZE = {
     # True-ish
@@ -73,40 +65,8 @@ async def cross_check_claims(claims: list[str]) -> list[dict]:
 
 
 async def _check_single_claim(claim: str) -> dict | None:
-    """Query Google Fact Check API for a single claim."""
+    """Evaluate a single claim using heuristic analysis."""
     short_claim = claim[:200]
-
-    if FACT_CHECK_API_KEY:
-        try:
-            async with httpx.AsyncClient(timeout=6.0) as client:
-                resp = await client.get(FACT_CHECK_URL, params={
-                    "key": FACT_CHECK_API_KEY,
-                    "query": short_claim,
-                    "languageCode": "en",
-                    "pageSize": 1
-                })
-                data = resp.json()
-                items = data.get("claims", [])
-                if items:
-                    item = items[0]
-                    rating_text = ""
-                    source_name = ""
-                    review = item.get("claimReview", [])
-                    if review:
-                        rating_text = review[0].get("textualRating", "").lower()
-                        source_name = review[0].get("publisher", {}).get("name", "")
-
-                    verdict, label = _normalize_verdict(rating_text)
-                    return {
-                        "claim": item.get("text", short_claim)[:150],
-                        "verdict": verdict,
-                        "label": label,
-                        "source": source_name or "Google Fact Check"
-                    }
-        except Exception:
-            pass  # Fall through to heuristic
-
-    # ── Heuristic fallback ──
     return _heuristic_fact_check(short_claim)
 
 

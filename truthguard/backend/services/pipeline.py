@@ -109,7 +109,7 @@ async def run_pipeline(
     confidence = max(10.0, min(99.0, confidence))
 
     # Step 4 — LLM explanation (async)
-    explanation = await generate_explanation(
+    explanation = generate_explanation(
         text=text[:1500],
         verdict=verdict,
         confidence=confidence,

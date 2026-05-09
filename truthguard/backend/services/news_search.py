@@ -19,17 +19,13 @@ from dotenv import load_dotenv
 
 load_dotenv()
 NEWS_API_KEY  = os.getenv("NEWS_API_KEY", "").strip()
-GNEWS_API_KEY = os.getenv("GNEWS_API_KEY", "").strip()
 DEMO_MODE     = os.getenv("DEMO_MODE", "false").strip().lower() == "true"
 
 # Strip placeholder values so they aren't accidentally used
 if NEWS_API_KEY  in ("your_newsapi_key_here", ""):
     NEWS_API_KEY = ""
-if GNEWS_API_KEY in ("your_gnews_api_key_here", ""):
-    GNEWS_API_KEY = ""
 
 NEWSAPI_URL = "https://newsapi.org/v2/everything"
-GNEWS_URL   = "https://gnews.io/api/v4/search"
 
 # Tier-1 verified sources
 TRUSTED_SOURCES = {
@@ -78,11 +74,6 @@ async def search_verified_news(query: str, claims: list[str], entities: list[dic
         articles = await _search_newsapi(search_query)
         if articles:
             api_used = "NewsAPI"
-
-    if not articles and GNEWS_API_KEY:
-        articles = await _search_gnews(search_query)
-        if articles:
-            api_used = "GNews"
 
     # Only use demo if explicitly enabled via env
     if not articles and DEMO_MODE:
@@ -135,31 +126,6 @@ async def _search_newsapi(query: str) -> list[dict]:
         return []
 
 
-async def _search_gnews(query: str) -> list[dict]:
-    """Query GNews API as secondary fallback."""
-    try:
-        async with httpx.AsyncClient(timeout=8.0) as client:
-            resp = await client.get(GNEWS_URL, params={
-                "q": query,
-                "token": GNEWS_API_KEY,
-                "lang": "en",
-                "max": 5,
-            })
-            data = resp.json()
-            return [
-                {
-                    "title": a.get("title", ""),
-                    "source": a.get("source", {}).get("name", "Unknown"),
-                    "url": a.get("url", ""),
-                    "published_at": (a.get("publishedAt") or "")[:10],
-                    "is_trusted": _is_trusted_source("", a.get("url", "")),
-                }
-                for a in data.get("articles", [])
-                if a.get("title")
-            ]
-    except Exception as e:
-        print(f"[NewsSearch] GNews error: {e}")
-        return []
 
 
 def _demo_search(query: str) -> list[dict]:
