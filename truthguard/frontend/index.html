@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TruthGuard — AI Fake News Detector</title>
+  <meta name="description" content="TruthGuard is an AI-powered real-time fake news and misinformation detection system for social media." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <!-- ── TOAST CONTAINER ── -->
+  <div id="toastContainer" aria-live="polite" style="position:fixed;top:1.2rem;right:1.2rem;z-index:9999;display:flex;flex-direction:column;gap:0.6rem;"></div>
+
+  <!-- ── BACKEND OFFLINE BANNER ── -->
+  <div id="offlineBanner" class="hidden" role="alert" style="
+    background:linear-gradient(90deg,#78350f,#92400e);
+    color:#fef3c7;
+    text-align:center;
+    padding:0.6rem 1rem;
+    font-size:0.82rem;
+    font-weight:500;
+    letter-spacing:0.02em;
+    position:sticky;top:0;z-index:900;
+    border-bottom:1px solid #b45309;
+    display:flex;align-items:center;justify-content:center;gap:0.75rem;
+  ">
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+    <span>⚠️ Backend is offline — results below are <strong>illustrative demo data</strong>, not real analysis. Start the backend with <code style="background:rgba(0,0,0,0.3);padding:0.1rem 0.4rem;border-radius:3px;">./start.sh</code></span>
+    <button onclick="document.getElementById('offlineBanner').classList.add('hidden')" style="background:none;border:none;color:#fef3c7;cursor:pointer;font-size:1rem;line-height:1;padding:0 0.3rem;opacity:0.7;" aria-label="Dismiss">✕</button>
+  </div>
+  <!-- ── HEADER ── -->
+  <header class="header">
+    <div class="header-inner">
+      <div class="logo">
+        <div class="logo-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+          </svg>
+        </div>
+        <span class="logo-text">TruthGuard</span>
+        <span class="logo-badge">AI</span>
+      </div>
+      <nav class="nav">
+        <a href="#analyzer" class="nav-link">Analyzer</a>
+        <a href="#how-it-works" class="nav-link">How It Works</a>
+        <a href="#features" class="nav-link">Features</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- ── HERO ── -->
+  <section class="hero">
+    <div class="hero-bg-orbs">
+      <div class="orb orb-1"></div>
+      <div class="orb orb-2"></div>
+      <div class="orb orb-3"></div>
+    </div>
+    <div class="hero-content">
+      <div class="hero-label">
+        <span class="pulse-dot"></span>
+        AI-Powered Misinformation Detection
+      </div>
+      <h1 class="hero-title">
+        Stop Fake News<br/>
+        <span class="gradient-text">Before It Spreads</span>
+      </h1>
+      <p class="hero-subtitle">
+        TruthGuard analyzes articles, links, and images in real-time using a multi-model AI engine — delivering verdicts with evidence, not guesses.
+      </p>
+      <a href="#analyzer" class="cta-btn">
+        Analyze Now
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+      </a>
+    </div>
+    <div class="hero-stats">
+      <div class="stat-card">
+        <span class="stat-num">6x</span>
+        <span class="stat-label">Faster spread than real news</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-num">94%</span>
+        <span class="stat-label">Detection accuracy</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-num">&lt;3s</span>
+        <span class="stat-label">Analysis time</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── ANALYZER ── -->
+  <section class="section analyzer-section" id="analyzer">
+    <div class="section-label">Core Engine</div>
+    <h2 class="section-title">Paste. Analyze. Know the Truth.</h2>
+    <p class="section-subtitle">Supports news articles, social media posts, URLs, and images.</p>
+
+    <div class="analyzer-card" id="analyzerCard">
+      <!-- Input type tabs -->
+      <div class="input-tabs" role="tablist">
+        <button class="tab-btn active" id="tab-text" role="tab" aria-selected="true" onclick="switchTab('text')">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14,2 14,8 20,8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10,9 9,9 8,9"/></svg>
+          Text
+        </button>
+        <button class="tab-btn" id="tab-url" role="tab" aria-selected="false" onclick="switchTab('url')">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+          URL / Link
+        </button>
+        <button class="tab-btn" id="tab-image" role="tab" aria-selected="false" onclick="switchTab('image')">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21,15 16,10 5,21"/></svg>
+          Image
+        </button>
+      </div>
+
+      <!-- Text Input Panel -->
+      <div class="input-panel" id="panel-text">
+        <textarea 
+          id="textInput" 
+          class="text-input" 
+          placeholder="Paste news article, tweet, or any social media post here..."
+          rows="6"
+        ></textarea>
+      </div>
+
+      <!-- URL Input Panel -->
+      <div class="input-panel hidden" id="panel-url">
+        <div class="url-input-wrap">
+          <svg class="url-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+          <input 
+            type="url" 
+            id="urlInput" 
+            class="url-input" 
+            placeholder="https://example.com/news-article or Twitter/X link"
+          />
+        </div>
+        <p class="input-hint">Supports news websites, Twitter/X, Facebook posts, and blog links</p>
+      </div>
+
+      <!-- Image Input Panel -->
+      <div class="input-panel hidden" id="panel-image">
+        <div class="dropzone" id="dropzone" onclick="document.getElementById('fileInput').click()" 
+             ondragover="handleDragOver(event)" ondrop="handleDrop(event)">
+          <input type="file" id="fileInput" accept="image/*" class="hidden" onchange="handleFileSelect(event)" />
+          <div class="dropzone-content" id="dropzoneContent">
+            <div class="dropzone-icon">
+              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21,15 16,10 5,21"/></svg>
+            </div>
+            <p class="dropzone-text">Drop an image here or <span class="link-text">browse</span></p>
+            <p class="dropzone-hint">Screenshots, photos of articles, memes — text is extracted via OCR</p>
+          </div>
+          <img id="imagePreview" class="image-preview hidden" alt="Preview" />
+        </div>
+      </div>
+
+      <!-- Analyze Button -->
+      <button class="analyze-btn" id="analyzeBtn" onclick="analyzeContent()">
+        <span id="btnText">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+          Analyze Now
+        </span>
+        <span id="btnLoading" class="hidden">
+          <div class="btn-spinner"></div>
+          Analyzing...
+        </span>
+      </button>
+    </div>
+
+    <!-- ── PROGRESS STEPS ── -->
+    <div class="progress-card hidden" id="progressCard">
+      <div class="progress-header">
+        <div class="progress-icon spin">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg>
+        </div>
+        <span class="progress-title">Analysis in Progress</span>
+      </div>
+      <div class="steps-list" id="stepsList"></div>
+    </div>
+
+    <!-- ── RESULTS ── -->
+    <div class="results-container hidden" id="resultsContainer">
+
+      <!-- Verdict Card -->
+      <div class="verdict-card" id="verdictCard">
+        <div class="verdict-header">
+          <div class="verdict-icon-wrap" id="verdictIconWrap">
+            <!-- injected by JS -->
+          </div>
+          <div class="verdict-details">
+            <div class="verdict-label">Verdict</div>
+            <div class="verdict-text" id="verdictText">—</div>
+            <div class="verdict-confidence">
+              Confidence: <span id="confidenceText" class="confidence-num">—</span>
+            </div>
+          </div>
+          <div class="confidence-ring" id="confidenceRing">
+            <svg width="80" height="80" viewBox="0 0 80 80">
+              <circle cx="40" cy="40" r="34" fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="6"/>
+              <circle id="ringCircle" cx="40" cy="40" r="34" fill="none" stroke="#a78bfa" stroke-width="6"
+                stroke-dasharray="213.6" stroke-dashoffset="213.6"
+                stroke-linecap="round" transform="rotate(-90 40 40)"
+                style="transition: stroke-dashoffset 1.2s ease, stroke 0.4s"/>
+            </svg>
+            <span class="ring-label" id="ringLabel">0%</span>
+          </div>
+        </div>
+
+        <!-- Confidence Bar -->
+        <div class="confidence-bar-wrap">
+          <div class="confidence-bar-track">
+            <div class="confidence-bar-fill" id="confidenceBarFill"></div>
+          </div>
+          <div class="confidence-scale">
+            <span>0%</span><span>25%</span><span>50%</span><span>75%</span><span>100%</span>
+          </div>
+        </div>
+
+        <!-- AI Explanation -->
+        <div class="explanation-box" id="explanationBox">
+          <div class="explanation-label">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+            AI Explanation
+          </div>
+          <p class="explanation-text" id="explanationText">—</p>
+        </div>
+      </div>
+
+      <!-- Bottom Grid: Source + Evidence -->
+      <div class="results-grid">
+
+        <!-- Source Credibility -->
+        <div class="result-panel" id="credibilityPanel">
+          <div class="panel-header">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+            Source Credibility
+          </div>
+          <div class="source-info" id="sourceInfo">
+            <div class="source-domain" id="sourceDomain">—</div>
+            <div class="credibility-meter-wrap">
+              <div class="credibility-meter-track">
+                <div class="credibility-meter-fill" id="credMeterFill"></div>
+              </div>
+              <span class="credibility-score" id="credScore">—</span>
+            </div>
+            <div class="source-details" id="sourceDetails"></div>
+          </div>
+        </div>
+
+        <!-- Evidence Cross-Check -->
+        <div class="result-panel" id="evidencePanel">
+          <div class="panel-header">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9,11 12,14 22,4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+            Evidence Cross-Check
+          </div>
+          <div class="evidence-list" id="evidenceList">
+            <!-- injected by JS -->
+          </div>
+        </div>
+      </div>
+
+      <!-- Verified News Panel (full-width) -->
+      <div class="result-panel verified-news-panel" id="verifiedNewsPanel">
+        <div class="panel-header">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+          Verified News Search
+          <span class="panel-header-badge" id="newsSignalBadge"></span>
+        </div>
+        <p class="news-search-query" id="newsSearchQuery"></p>
+        <div class="news-articles-list" id="newsArticlesList">
+          <!-- injected by JS -->
+        </div>
+      </div>
+
+      <!-- Analysis Tags -->
+      <div class="tags-row" id="tagsRow"></div>
+
+      <!-- Analyze Again -->
+      <button class="reset-btn" id="resetBtn" onclick="resetAnalysis()">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23,4 23,10 17,10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+        Analyze Another
+      </button>
+    </div>
+  </section>
+
+  <!-- ── HOW IT WORKS ── -->
+  <section class="section" id="how-it-works">
+    <div class="section-label">Under the Hood</div>
+    <h2 class="section-title">How TruthGuard Works</h2>
+    <p class="section-subtitle">A 5-step AI pipeline that goes beyond keywords.</p>
+
+    <div class="pipeline">
+      <div class="pipeline-step" style="--delay: 0s">
+        <div class="step-num">01</div>
+        <div class="step-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14,2 14,8 20,8"/></svg>
+        </div>
+        <div class="step-content">
+          <h3 class="step-title">Input & Extraction</h3>
+          <p class="step-desc">Text, URLs, or images are parsed. OCR extracts text from images. URLs are scraped for full article content.</p>
+        </div>
+        <div class="step-connector"></div>
+      </div>
+
+      <div class="pipeline-step" style="--delay: 0.1s">
+        <div class="step-num">02</div>
+        <div class="step-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+        </div>
+        <div class="step-content">
+          <h3 class="step-title">NLP Preprocessing</h3>
+          <p class="step-desc">spaCy extracts named entities, key claims, sentiment signals, and writing style indicators.</p>
+        </div>
+        <div class="step-connector"></div>
+      </div>
+
+      <div class="pipeline-step" style="--delay: 0.2s">
+        <div class="step-num">03</div>
+        <div class="step-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+        </div>
+        <div class="step-content">
+          <h3 class="step-title">Multi-Model Classification</h3>
+          <p class="step-desc">RoBERTa transformer classifies the content. Results are ensemble-weighted for maximum accuracy.</p>
+        </div>
+        <div class="step-connector"></div>
+      </div>
+
+      <div class="pipeline-step" style="--delay: 0.3s">
+        <div class="step-num">04</div>
+        <div class="step-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="9,11 12,14 22,4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+        </div>
+        <div class="step-content">
+          <h3 class="step-title">Fact Cross-Reference</h3>
+          <p class="step-desc">Key claims are checked against Google Fact Check Tools API and reputable fact-checking databases.</p>
+        </div>
+        <div class="step-connector"></div>
+      </div>
+
+      <div class="pipeline-step" style="--delay: 0.4s">
+        <div class="step-num">05</div>
+        <div class="step-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+        </div>
+        <div class="step-content">
+          <h3 class="step-title">LLM Explanation</h3>
+          <p class="step-desc">Gemini AI generates a human-readable explanation — not just a verdict, but the <em>reasoning</em> behind it.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── FEATURES ── -->
+  <section class="section features-section" id="features">
+    <div class="section-label">Capabilities</div>
+    <h2 class="section-title">What Makes Us Different</h2>
+    <p class="section-subtitle">We don't just label — we explain, evidence, and empower.</p>
+
+    <div class="features-grid">
+      <div class="feature-card feature-card--highlight">
+        <div class="feature-icon">
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12,6 12,12 16,14"/></svg>
+        </div>
+        <h3 class="feature-title">Real-Time Analysis</h3>
+        <p class="feature-desc">Get results in under 3 seconds. No waiting, no queues — instant AI inference on demand.</p>
+        <div class="feature-tag">Core</div>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icon">
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+        </div>
+        <h3 class="feature-title">Multi-Model AI Engine</h3>
+        <p class="feature-desc">RoBERTa transformer + LLM reasoning combined for best-in-class accuracy and explainability.</p>
+        <div class="feature-tag">Core</div>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icon">
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        </div>
+        <h3 class="feature-title">Source Credibility Scoring</h3>
+        <p class="feature-desc">Every source is scored 0–100 based on domain age, history, and known credibility databases.</p>
+        <div class="feature-tag">Core</div>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icon">
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="9,11 12,14 22,4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+        </div>
+        <h3 class="feature-title">Evidence Cross-Check</h3>
+        <p class="feature-desc">Key claims extracted and verified against Google Fact Check Tools and Snopes databases.</p>
+        <div class="feature-tag">Core</div>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icon">
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21,15 16,10 5,21"/></svg>
+        </div>
+        <h3 class="feature-title">Image OCR Analysis</h3>
+        <p class="feature-desc">Upload screenshots or viral images — text is extracted and analyzed just like any article.</p>
+        <div class="feature-tag">Core</div>
+      </div>
+
+      <div class="feature-card feature-card--soon">
+        <div class="feature-icon">
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polygon points="23,7 16,12 23,17 23,7"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/></svg>
+        </div>
+        <h3 class="feature-title">Video / Reel Analysis</h3>
+        <p class="feature-desc">Transcript extraction and deepfake detection for TikTok, Instagram Reels, and YouTube Shorts.</p>
+        <div class="feature-tag feature-tag--soon">Coming Soon</div>
+      </div>
+
+      <div class="feature-card feature-card--soon">
+        <div class="feature-icon">
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 2H3v16h5l3 3 3-3h7V2z"/></svg>
+        </div>
+        <h3 class="feature-title">Social Media Scanner</h3>
+        <p class="feature-desc">Paste any tweet, Facebook post, or Instagram caption for instant cross-platform analysis.</p>
+        <div class="feature-tag feature-tag--soon">Coming Soon</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── FOOTER ── -->
+  <footer class="footer">
+    <div class="footer-inner">
+      <div class="logo">
+        <div class="logo-icon">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+          </svg>
+        </div>
+        <span class="logo-text">TruthGuard</span>
+      </div>
+      <p class="footer-text">Built at Hackathon 2026 · Powered by AI · Fighting Misinformation</p>
+    </div>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>
